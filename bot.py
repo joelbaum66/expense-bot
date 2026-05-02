@@ -25,9 +25,9 @@ def _format_confirmation(expense: dict) -> str:
     ttc = expense.get("ttc")
     devise = expense.get("devise", "EUR")
 
-    ht_str = f"{ht:.2f} {devise}" if isinstance(ht, (int, float)) else str(ht)
-    tva_str = f"{tva_eur:.2f} € ({tva_pct}%)" if isinstance(tva_eur, (int, float)) else str(tva_eur)
-    ttc_str = f"{ttc:.2f} {devise}" if isinstance(ttc, (int, float)) else str(ttc)
+    ht_str = f"{ht:.2f} {devise}" if isinstance(ht, (int, float)) else "NC"
+    tva_str = f"{tva_eur:.2f} € ({tva_pct}%)" if isinstance(tva_eur, (int, float)) else "NC"
+    ttc_str = f"{ttc:.2f} {devise}" if isinstance(ttc, (int, float)) else "NC"
 
     return (
         "✅ *Dépense enregistrée !*\n\n"

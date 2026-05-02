@@ -19,7 +19,7 @@ Règles de catégorisation :
 
 Taux de TVA français : 20% (standard), 10% (restauration, transport), 5.5% (alimentation), 2.1% (presse médicaments).
 
-Retourne UNIQUEMENT ce JSON (pas de markdown, pas d'explication) :
+Retourne UNIQUEMENT ce JSON (null si information indisponible, pas de markdown, pas d'explication) :
 {
   "date": "JJ/MM/AAAA",
   "marchand": "Nom du marchand",
@@ -34,7 +34,8 @@ Retourne UNIQUEMENT ce JSON (pas de markdown, pas d'explication) :
 Calculs :
 - Si TTC et TVA% connus : HT = TTC / (1 + TVA%/100), TVA€ = TTC - HT
 - Si HT et TVA% connus : TVA€ = HT * TVA%/100, TTC = HT + TVA€
-- Si montant unique sans précision : considère-le comme TTC avec TVA 20%
+- Si montant unique sans précision dans un contexte français clairement taxé : considère-le comme TTC avec TVA 20%
+- Si la TVA n'est pas détectable (reçu étranger, auto-entrepreneur, franchise de TVA, mention "TVA non applicable") : utilise null pour tva_pct et tva_eur, et null pour ht si seul le TTC est connu
 - Arrondir à 2 décimales
 - Pour la date : si absente, utilise la date fournie dans le message"""
 
@@ -70,7 +71,9 @@ def parse_expense_text(text: str, today: str) -> dict:
             }
         ],
     )
-    return _extract_json(message.content[0].text)
+    expense = _extract_json(message.content[0].text)
+    expense["remarques"] = "pas de ticket dispo"
+    return expense
 
 
 def parse_expense_image(image_bytes: bytes, mime_type: str, today: str) -> dict:
@@ -99,4 +102,6 @@ def parse_expense_image(image_bytes: bytes, mime_type: str, today: str) -> dict:
             }
         ],
     )
-    return _extract_json(message.content[0].text)
+    expense = _extract_json(message.content[0].text)
+    expense["remarques"] = ""
+    return expense
