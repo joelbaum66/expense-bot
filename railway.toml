@@ -3,5 +3,5 @@ builder = "dockerfile"
 
 [deploy]
 startCommand = "python bot.py"
-restartPolicyType = "on-failure"
+restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10
