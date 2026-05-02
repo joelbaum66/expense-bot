@@ -1,3 +1,4 @@
+import json
 import os
 from datetime import datetime
 
@@ -13,10 +14,14 @@ HEADERS = ["Date", "Marchand", "Catégorie", "HT", "TVA %", "TVA €", "TTC", "D
 
 
 def _get_sheet() -> gspread.Worksheet:
-    creds = Credentials.from_service_account_file(
-        os.getenv("GOOGLE_CREDENTIALS_PATH", "credentials.json"),
-        scopes=SCOPES,
-    )
+    creds_json = os.getenv("GOOGLE_CREDENTIALS_JSON")
+    if creds_json:
+        creds = Credentials.from_service_account_info(json.loads(creds_json), scopes=SCOPES)
+    else:
+        creds = Credentials.from_service_account_file(
+            os.getenv("GOOGLE_CREDENTIALS_PATH", "credentials.json"),
+            scopes=SCOPES,
+        )
     client = gspread.authorize(creds)
     spreadsheet = client.open_by_key(os.getenv("GOOGLE_SHEET_ID"))
     return spreadsheet.sheet1
