@@ -59,6 +59,15 @@ def _extract_json(text: str) -> dict:
         raise ValueError(f"JSON introuvable dans : {text[:200]}")
 
 
+_TEXT_ONLY_RULES = (
+    "RÈGLES POUR CE MESSAGE TEXTE (sans reçu physique) :\n"
+    "- tva_pct et tva_eur : toujours null (aucun reçu = TVA non vérifiable)\n"
+    "- ht : null sauf si le message contient explicitement 'HT' ou 'hors taxe'\n"
+    "- ttc : null sauf si le message contient explicitement un montant chiffré (ex: 25€, 18.50)\n"
+    "- Ne calcule aucune valeur dérivée, retourne uniquement ce qui est écrit\n\n"
+)
+
+
 def parse_expense_text(text: str, today: str) -> dict:
     message = client.messages.create(
         model="claude-sonnet-4-6",
@@ -67,11 +76,21 @@ def parse_expense_text(text: str, today: str) -> dict:
         messages=[
             {
                 "role": "user",
-                "content": f"Date d'aujourd'hui : {today}\n\nAnalyse cette dépense :\n{text}",
+                "content": f"Date d'aujourd'hui : {today}\n\n{_TEXT_ONLY_RULES}Analyse cette dépense :\n{text}",
             }
         ],
     )
     expense = _extract_json(message.content[0].text)
+
+    # Safety net: always null TVA for text-only entries
+    expense["tva_pct"] = None
+    expense["tva_eur"] = None
+
+    # Fallback: use the raw message as merchant name if none was detected
+    marchand = expense.get("marchand")
+    if not marchand or marchand in ("N/A", "Inconnu", "inconnu", "unknown", "Non précisé"):
+        expense["marchand"] = text.strip()
+
     expense["remarques"] = "pas de ticket dispo"
     return expense
 
