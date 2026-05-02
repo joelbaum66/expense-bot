@@ -64,7 +64,12 @@ _TEXT_ONLY_RULES = (
     "- tva_pct et tva_eur : toujours null (aucun reçu = TVA non vérifiable)\n"
     "- ht : null sauf si le message contient explicitement 'HT' ou 'hors taxe'\n"
     "- ttc : null sauf si le message contient explicitement un montant chiffré (ex: 25€, 18.50)\n"
-    "- Ne calcule aucune valeur dérivée, retourne uniquement ce qui est écrit\n\n"
+    "- Ne calcule aucune valeur dérivée, retourne uniquement ce qui est écrit\n"
+    "- marchand : extraire UNIQUEMENT le nom du lieu/marchand, en ignorant les montants et les dates.\n"
+    "  Si un nom propre est présent, l'utiliser en priorité (ex: 'déjeuner Paul' → 'Paul').\n"
+    "  Sinon, combiner le type de dépense et le lieu (ex: 'taxi aéroport' → 'Taxi Aéroport').\n"
+    "  Si aucun nom identifiable : retourner null.\n"
+    "  Exemples : '15€ café réunion 02/05' → 'Café Réunion' | '50€ taxi aéroport 15/05' → 'Taxi Aéroport' | '25€ déjeuner Paul 01/05' → 'Paul'\n\n"
 )
 
 
